@@ -1,0 +1,9 @@
+validators
+beautifulsoup4
+chardet
+numpy
+spacy
+stem
+pycurl
+fake_useragent
+pymongo
