@@ -3,11 +3,15 @@ import json
 from .verifier import validate_email
 from ..nlp.nlp import remove_stop_words, summarize
 from .string_parsers import remove_non_alphanumeric
+from .restalker import restalker
 
 class Parser:
 
     def __init__(self,content : str) -> None:
         self.content = remove_non_alphanumeric(content)
+        self.restalk = restalker.reStalker(all=True)
+
+
 
     def get_word_occurrences(self):
         # Initialize a defaultdict to store word occurrences
@@ -69,6 +73,10 @@ class Parser:
     
     def get_sumary(self,p=0.15):
         return summarize(remove_non_alphanumeric(self.content),p) + "\n"
+    
+    #Anadir get ocurrences
+    
+    #Añadir stalker
 
     
     @staticmethod
@@ -78,3 +86,10 @@ class Parser:
             for key, value in item.items():
                 r += f"'{key}': '{value}'"
         return r
+    
+    @staticmethod
+    def remove_blank(s):
+        return s.replace('\n','').replace('\t','')
+    
+    def _remove_duplicates(l):
+        return list(dict.fromkeys(l))

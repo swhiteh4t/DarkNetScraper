@@ -7,3 +7,12 @@ stem
 pycurl
 fake_useragent
 pymongo
+based58
+bech32ref
+bs4
+nltk
+monero
+rake-nltk
+web3
+keybert
+pandas

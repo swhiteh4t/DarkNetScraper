@@ -7,9 +7,19 @@ from .binder import Binder
 
 # DarkNetScraper CLI class
 class DarkNetScraper:
+    binder = None
 
     def __init__(self, args):
         self.args = args
+        if args.ip and args.port:
+            self.binder = Binder(ip=args.ip, port=args.port,args=args)
+        elif args.ip is None and args.port is None:
+            print("An IP and port must be specified for the correct usage.")
+            sys.exit(1)
+        else:
+            ("Running default network configuration: 127.0.0.1:9051")
+            self.binder = Binder(args=args)
+        self.get_header()
 
     def get_header(self):
         license_msg = ColoredText("LICENSE: GNU Public License v3", "red")
@@ -45,8 +55,6 @@ class DarkNetScraper:
 
     def run(self):
         args = self.args
-
-        self.get_header()
         #Get the current version of the program
         if args.version:
             print("DarKNetScarper Version:" + self.__version__)
@@ -54,19 +62,14 @@ class DarkNetScraper:
         # If url flag is set then check for accompanying flag set. Only one
         # additional flag can be set with -u/--url flag
         if validate_link(args.url):
-            if args.ip and args.port:
-                binder = Binder(ip=args.ip, port=args.port,args=args)
-            elif args.ip is None and args.port is None:
-                print("An IP and port must be specified for the correct usage.")
-                sys.exit(1)
-            else:
-                ("Running default network configuration: 127.0.0.1:9051")
-                binder = Binder(args=args)
-            binder.run(parse_depth(args.depth), url=args.url)
+            self.binder.run(parse_depth(args.depth), url=args.url)
         else:
             print("usage: Use the -h flag for information of the usage.")
             sys.exit(1)
         print("\n\n")
+    
+    def stop(self):
+        self.binder.stop()
 
 def get_arguments():
     """
@@ -100,5 +103,6 @@ if __name__ == '__main__':
         args = get_arguments()
         dark_scraper = DarkNetScraper(args)
         dark_scraper.run()
+        dark_scraper.stop()
     except KeyboardInterrupt:
         print("Interrupt received! Exiting cleanly...")

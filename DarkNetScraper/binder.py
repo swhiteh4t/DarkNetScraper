@@ -25,7 +25,7 @@ class Binder:
             print(ColoredText("[ * ] Initating the database ", 'blue'))
             #TODO: Implement the graphs
             self.connector.check_my_ip()
-        #self.db = DBConnector()
+        self.db = DBConnector()
 
     def run(self, depth, url=None):
         if depth <= 0 or url is None:
@@ -52,14 +52,23 @@ class Binder:
             self._print_phone(p)
         if self.args.additional:
             self._print_additonal(p)
+        input = print(ColoredText("[ ! ] Introduce the category : ",'cyan'))
         #Save to database
         #self.db.save_to_file()
-        '''self.db.add_entry(
+        if self.args.clasify:
+            self.db.add_entry_generate(
+                title=e.title,
+                content=Parser.remove_blank(e.content_raw),
+                category=input
+
+          )
+        else:
+            self.db.add_entry(
             title=e.title,
             content=e.title,
-            category="",
-            summary=
-            )'''
+            category="", #Trained model response
+            summary="" #Trained model response
+            )
         #Traverse other links recursive
         for link in e.links:
             self.run(depth=int(depth)-1,url=link)
@@ -68,7 +77,9 @@ class Binder:
 
     def stop(self):
         print(ColoredText("[ * ] Commiting changes to the Database...",'blue'))
-        self.connector.stop()
+        if self.args.clasify:
+            self.db.save_to_file()
+        self.db.save_db()
 
     '''Helper funcitons'''
     def _print_phone(self,parser):

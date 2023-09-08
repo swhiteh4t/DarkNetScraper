@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from DarkNetScraper.output.colors import ColoredText
 from DarkNetScraper.output.file_handlers import save_json
 from .time.getime import get_formatted_time
+import pandas as pd
 
 
 class DBConnector:
@@ -34,6 +35,18 @@ class DBConnector:
        self.collection_name = "Search-" + get_formatted_time()
        self.colection = self.db["Search"]
 
+    def add_entry_generate(self,title,content,category,verbose=False):
+        if verbose:
+            print(ColoredText("Added entry to collection " + self.collection_name,'white'))
+        entry = {
+            'title' : title,
+            'content' : content,
+            'category' : category,
+        }
+        self.entries.append(entry)
+
+
+
     def add_entry(self,title="",link="",content="",category="",summary="", emails="", address="", phone="", ipv4="", ipv6="", cloud="",verbose=False):
         entry = {
             "Title" : title,
@@ -56,4 +69,6 @@ class DBConnector:
         self.collection.insert_many(self.entries)
 
     def save_to_file(self):
-        save_json("result.json", self.entries)
+        save_json(self.collection_name + ".json", self.entries)
+        df = pd.read_json(self.entries)
+        df.to_csv(self.collection_name + ".csv", index=False)
