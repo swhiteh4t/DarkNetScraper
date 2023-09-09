@@ -1,5 +1,6 @@
 from collections import deque
 import queue
+import random
 
 from DarkNetScraper.output.printer import print_generic
 from DarkNetScraper.parsers.string_parsers import is_digits
@@ -10,10 +11,12 @@ from .output.colors import ColoredText
 from .datamodels import DBConnector
 from .nlp.nlp import summarize
 from .config import CONFIG_IP,CONFIG_PORT
+import os,json
 
 class Binder:
     connector = None
     args = None
+    visited = None
 
     def __init__(self,ip=CONFIG_IP,port=CONFIG_PORT,args=args):
         self.args = args
@@ -26,12 +29,19 @@ class Binder:
             #TODO: Implement the graphs
             self.connector.check_my_ip()
         self.db = DBConnector()
+        if os.path.exists('visited.json'):
+            self.visited = set(json.loads(open('visited.json').read()))
+        else:
+            self.visited = set() #Load the set
 
     def run(self, depth, url=None):
-        if depth <= 0 or url is None:
+        if depth <= 0 or url is None or url in self.visited:
             return
+        
         print(ColoredText("[ * ] Making request to " + url,"white"))
         html = self.connector.query(url=url)
+        self.visited.add(url)
+
         if html is None:
             return 
         e = Extractor(html=html)
@@ -39,33 +49,38 @@ class Binder:
         print(ColoredText("[ - ] Title : " +e.title,'magenta'))
         p = Parser(e.content_raw)
         if self.args.verbose:
-            self._print_metaatr(e.meta)
-            self._print_summary(p)
+            self.__print_metaatr(e.meta)
+            if self.__print_summary(p):
+                self.__print_content(p)
         #Renew the identity in each request
-        if self.args.anonimity:
+        if self.args.anonimity or random.randint(1,10) % 10 == 0:
             self.connector.renew_tor_identity()
             if self.args.verbose:
                 self.connector.check_my_ip()
         if self.args.mail:
-            self._print_mail(p)
+            self.__print_mail(p)
         if self.args.phone:
-            self._print_phone(p)
+            self.__print_phone(p)
         if self.args.additional:
-            self._print_additonal(p)
-        input = print(ColoredText("[ ! ] Introduce the category : ",'cyan'))
+            self.__print_additonal(p)
+        
         #Save to database
         #self.db.save_to_file()
-        if self.args.clasify:
-            self.db.add_entry_generate(
-                title=e.title,
-                content=Parser.remove_blank(e.content_raw),
-                category=input
+        if self.args.classify:
+            inp = input(ColoredText("[ ! ] Introduce the category : ",'cyan'))
+            category = self.__resolve_categorize(inp)
+            if int(inp):
+                print(ColoredText("Categorized as "+category,'cyan'))
+                self.db.add_entry_generate(
+                    title=Parser.remove_non_alphanum(e.title),
+                    content=p.content,
+                    category=category
 
           )
         else:
             self.db.add_entry(
-            title=e.title,
-            content=e.title,
+            title=Parser.remove_non_alphanum(e.title),
+            content=p.content,
             category="", #Trained model response
             summary="" #Trained model response
             )
@@ -77,27 +92,73 @@ class Binder:
 
     def stop(self):
         print(ColoredText("[ * ] Commiting changes to the Database...",'blue'))
-        if self.args.clasify:
+        if self.args.classify:
             self.db.save_to_file()
+        with open('visited.txt', 'w') as file:
+            file.write(json.dumps(self.visited, cls=SetEncoder))
         self.db.save_db()
 
     '''Helper funcitons'''
-    def _print_phone(self,parser):
+    def __print_phone(self,parser):
         print_generic(key='phone', data=parser.get_phone_numbers())
 
-    def _print_mail(self,parser):
+    def __print_mail(self,parser):
         print_generic(key='mail', data=parser.get_emails())
 
-    def _print_summary(self,parser):
-        print(ColoredText(parser.get_sumary(0.1),'darkmagenta'))
+    def __print_summary(self,parser):
+        summary = parser.get_sumary(0.15)
+        print(ColoredText(summary,'darkmagenta'))
+        return len(summary) < 10
     
-    def _print_metaatr(self,meta):
+    def __print_metaatr(self,meta):
         print(ColoredText("[ - ] Meta tags",'magenta'))
         print(ColoredText("[ - ] " + Parser.get_meta(meta)+"\n",'magenta'))
 
-    def _print_additonal(self, p : Parser):
+    def __print_additonal(self, p : Parser):
         keys = ['ip4' ,'ip6' ,'cloud', 'crypto']
         ip4,ip6,cloud,crypto = p.get_additional()
         values = [ip4 ,ip6,cloud,crypto]
         for key,value in zip(keys,values):
             print_generic(key=key,data=value)   
+
+    def __print_content(self,p: Parser):
+        print(ColoredText(p.content,'darkmagenta'))
+        
+    def __resolve_categorize(self,i):
+        categories = {
+        "0": "Empty",
+        "1" : "Pornography",
+        "2" : "Bitcoin related services",
+        "3" : "Drugs",
+        "4" : "Violence",
+        "5" : "C. Credit Cards",
+        "6" : "C. Money",
+        "7" : "C. Personal",
+        "8" : "Piracy",
+        "9" : "Hacking",
+        "10" : "Malware",
+        "11" : "Ilegal Marketplace",
+        "12" : "Services",
+        "14" : "Fraud",
+        "15" : "Human-Trafficking",
+        "16" : "Leaked documents",
+        "17" : "Directory/Wiki",
+        "18" : "Art & Music",
+        "19" : "Casino & Gambling",
+        "20" : "Privacy",
+        "21" : "Cryptocurrency",
+        "22" : "Forum",
+        "23" : "Marketplace",
+        "24" : "Library & Books",
+        "25" : "Jorunalism",
+        "26" : "Personal",
+        "27" : "Politics",
+        "28" : "Religion",
+        "29" : "Hosting & Software"}
+        return categories[i]
+    
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)

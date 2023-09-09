@@ -79,7 +79,7 @@ class Extractor:
                     p_all = p_all + p[x].text
                 else:
                     p_all = p_all + p[x].text + ". "
-            self.paragraphs = p_all
+            self.paragraphs = ' '.join(p_all)
 
     def extract_links(self):
         """

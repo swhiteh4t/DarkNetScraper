@@ -8,9 +8,11 @@ from .binder import Binder
 # DarkNetScraper CLI class
 class DarkNetScraper:
     binder = None
+    collection = None
 
     def __init__(self, args):
         self.args = args
+        self.get_header()
         if args.ip and args.port:
             self.binder = Binder(ip=args.ip, port=args.port,args=args)
         elif args.ip is None and args.port is None:
@@ -19,7 +21,7 @@ class DarkNetScraper:
         else:
             ("Running default network configuration: 127.0.0.1:9051")
             self.binder = Binder(args=args)
-        self.get_header()
+        
 
     def get_header(self):
         license_msg = ColoredText("LICENSE: GNU Public License v3", "red")
@@ -84,7 +86,7 @@ def get_arguments():
     parser.add_argument("-m", "--mail", action="store_true", help="Get e-mail addresses from the crawled sites") 
     parser.add_argument("-p", "--phone", action="store_true", help="Get phone numbers from the crawled sites")
     parser.add_argument("-a","--additional", action="store_true", help="Get crypto address & aws domains")
-    parser.add_argument("--depth", help="Specifiy max depth of crawler (default 1)", default=1)
+    parser.add_argument("-d","--depth", help="Specifiy max depth of crawler (default 1)", default=1)
     parser.add_argument("-v", "--verbose", action="store_true", help="Shows more output info.")
     parser.add_argument("-c", "--classify", action="store_true", help="Classify the webpage using NLP module.")
     parser.add_argument("--ip", action="store_true", help="Set the IP of the proxy server.") #Done

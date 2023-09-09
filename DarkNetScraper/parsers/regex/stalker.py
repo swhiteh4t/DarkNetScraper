@@ -4,11 +4,10 @@ from hashlib import sha256
 from bech32ref import segwit_addr
 from web3 import Web3
 from monero.address import address as xmr_address
-import link_extractors
+from .link_extractors import UUF
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import re
-import textan
 import base58
 import hashlib
 
@@ -574,7 +573,7 @@ class reStalker:
 
         for url in re.findall(url_format, body, re.DOTALL):
             try:
-                urls.add(link_extractors.UUF(url).rebuild())
+                urls.add(UUF(url).rebuild())
             except Exception as e:
                 pass
 
@@ -586,7 +585,7 @@ class reStalker:
                 if links:
                     for url in links:
                         try:
-                            urls.add(link_extractors.UUF(urljoin(origin, url.get("href"))).rebuild())
+                            urls.add(UUF(urljoin(origin, url.get("href"))).rebuild())
                         except Exception as e:
                             pass
         except:
@@ -594,7 +593,7 @@ class reStalker:
 
         for url in urls:
             if url:
-                parsed_url = link_extractors.UUF(url)
+                parsed_url = UUF(url)
                 # TODO Usar la regex completa en lugar de sólo el dominio?
                 if re.match(domain_format, parsed_url.domain, re.DOTALL):
                     yield parsed_url.rebuild()
@@ -736,7 +735,7 @@ class reStalker:
             )
             for link in i2p_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield I2P_URL(value=link_item)
@@ -750,7 +749,7 @@ class reStalker:
             )
             for link in tor_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield Tor_URL(value=link_item)
@@ -791,7 +790,7 @@ class reStalker:
             whatsapp_links = extract_elements(whatsapp_links)
             for link in whatsapp_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield Whatsapp_URL(value=link_item)
@@ -801,7 +800,7 @@ class reStalker:
             discord_links = extract_elements(discord_links)
             for link in discord_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield Discord_URL(value=link_item)
@@ -810,7 +809,7 @@ class reStalker:
             telegram_links = re.findall(telegram_url_regex, body)
             for link in telegram_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield Telegram_URL(value=link_item)
@@ -819,7 +818,7 @@ class reStalker:
             skype_links = re.findall(skype_url_regex, body)
             for link in skype_links:
                 try:
-                    link_item = link_extractors.UUF(link).full_url
+                    link_item = UUF(link).full_url
                 except Exception as e:
                     link_item = link
                 yield Skype_URL(value=link_item)

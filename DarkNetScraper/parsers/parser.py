@@ -3,13 +3,13 @@ import json
 from .verifier import validate_email
 from ..nlp.nlp import remove_stop_words, summarize
 from .string_parsers import remove_non_alphanumeric
-from .restalker import restalker
+from .regex import stalker
 
 class Parser:
 
     def __init__(self,content : str) -> None:
-        self.content = remove_non_alphanumeric(content)
-        self.restalk = restalker.reStalker(all=True)
+        self.content = Parser.remove_blank(remove_non_alphanumeric(content))
+        self.restalk = stalker.reStalker(all=True)
 
 
 
@@ -89,7 +89,12 @@ class Parser:
     
     @staticmethod
     def remove_blank(s):
-        return s.replace('\n','').replace('\t','')
+        return s.replace('\n','').replace('\t','').replace('\r','').replace(',','')
+    
+    @staticmethod
+    def remove_non_alphanum(s):
+        return remove_non_alphanumeric(s)
     
     def _remove_duplicates(l):
         return list(dict.fromkeys(l))
+    

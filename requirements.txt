@@ -1,18 +1,31 @@
-validators
-beautifulsoup4
-chardet
-numpy
-spacy
-stem
-pycurl
-fake_useragent
-pymongo
-based58
-bech32ref
-bs4
-nltk
-monero
-rake-nltk
-web3
-keybert
-pandas
+
+categories = {"1" : "Pornography",
+"2" : "Bitcoin related services",
+"3" : "Drugs",
+"4" : "Violence",
+"5" : "C. Credit Cards",
+"6" : "C. Money",
+"7" : "C. Personal",
+"8" : "Identification",
+"9" : "Hacking",
+"10" : "Malware",
+"11" : "Marketplace",
+"12" : "Services",
+"13" : "Forum",
+"14" : "Fraud",
+"15" : "Human-Trafficking",
+"16" : "Leaked documents",
+"17" : "Directory/Wiki",
+"18" : "Art & Music",
+"19" : "Casino & Gambling",
+"20" : "Service",
+"21" : "Cryptocurrency",
+"22" : "Forum",
+"23" : "Marketplace",
+"24" : "Library & Books",
+"25" : "Jorunalism",
+"26" : "Personal",
+"27" : "Politics",
+"28" : "Religion",
+"29" : "Hosting & Software"}
+

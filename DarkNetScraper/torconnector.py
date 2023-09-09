@@ -29,7 +29,7 @@ class TorConnector:
     def renew_tor_identity(self):
         print(term.format("Renewing Tor identity...", term.Color.GREEN))
         with Controller.from_port(port=CONFIG_PORT+1) as controller:
-            controller.authenticate(password="my_password")
+            controller.authenticate(password="mypassword")
             controller.signal(Signal.NEWNYM)
             
     
@@ -44,6 +44,7 @@ class TorConnector:
         query.setopt(pycurl.PROXYPORT, self.port)
         query.setopt(pycurl.PROXYTYPE, pycurl.PROXYTYPE_SOCKS5_HOSTNAME)
         query.setopt(pycurl.WRITEFUNCTION, output.write)
+        query.setopt(pycurl.FOLLOWLOCATION, 1)
         if self.random_agent:
             query.setopt(pycurl.HTTPHEADER, [
                 'accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -57,15 +58,17 @@ class TorConnector:
             query.close()
             try:
                 r = output.getvalue().decode()
+                output.close()
                 return r
             except:
                 print(ColoredText("[ E ] Error while decoding query!", 'red'))
-            return 
+            return None
           else:
               handle_response_code(response_code)
               return None
         except pycurl.error as exc:
-          return "Unable to reach %s (%s)" % (url, exc)
+          print(ColoredText("Unable to reach " + url, 'red'))
+          return None
     
     def print_bootstrap_lines(line,a):
         if "Bootstrapped " in a:

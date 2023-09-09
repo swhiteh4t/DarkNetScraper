@@ -1,7 +1,7 @@
 import os, sys, json
 
-def save_json(file_path):
-    save_file(json.dumps(file_path,indent=4))
+def save_json(file_path,data):
+    save_file(file_path,json.dumps(data,indent=4))
     
 def join_path(file_directory, file_name):
     if file_directory == "":

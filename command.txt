@@ -1,0 +1,1 @@
+python3 run.py -v -u http://6nhmgdpnyoljh5uzr5kwlatx2u3diou4ldeommfxjz3wkhalzgjqxzqd.onion/ -c --depth 3

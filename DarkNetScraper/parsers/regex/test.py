@@ -1,4 +1,4 @@
-import restalker
+import DarkNetScraper.parsers.regex.stalker as stalker
 import sys
 
 if len(sys.argv) > 1:
@@ -3232,7 +3232,7 @@ ThomassenVallen1999@mail.com
 Man is the master of everything and decides everything.
 """
 
-s = restalker.reStalker(all=True)
+s = stalker.reStalker(all=True)
 # s = restalker.reStalker(tor=True)
 
 for p in s.parse(target):

@@ -1,10 +1,12 @@
-from urllib.parse import urlparse
 from hashlib import md5
-import restalker
+from urllib.parse import urlparse
 import re
 
+domain_regex = r"(?:[a-z0-9]+\.){0,4}[a-z0-9]+\.?(?:\:[0-9]{2,5})?$"
+any_url = r"((?:https?:\/\/)?%s(?:\/[a-zA-Z0-9_-]*)*)" % domain_regex[:-1]
+
 def looks_like_link(l):
-    if re.match(restalker.any_url, l):
+    if re.match(any_url, l):
         return True
     else:
         proto = l.split('://')

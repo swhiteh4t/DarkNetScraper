@@ -1,5 +1,6 @@
+from io import StringIO
 from pymongo import MongoClient
-
+import json
 from DarkNetScraper.output.colors import ColoredText
 from DarkNetScraper.output.file_handlers import save_json
 from .time.getime import get_formatted_time
@@ -13,7 +14,7 @@ class DBConnector:
 
     def __init__(self) -> None:
        # Provide the mongodb atlas url to connect python to mongodb using pymongo
-       CONNECTION_STRING = "mongodb://test:test@127.0.0.1:27017/"
+       CONNECTION_STRING = "mongodb://admin:password@127.0.0.1:27017/"
     
        # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient
        self.client = MongoClient(CONNECTION_STRING)
@@ -33,7 +34,7 @@ class DBConnector:
             print(f"Database '{DB_NAME}' already exists.")
 
        self.collection_name = "Search-" + get_formatted_time()
-       self.colection = self.db["Search"]
+       self.collection = self.db[self.collection_name]
 
     def add_entry_generate(self,title,content,category,verbose=False):
         if verbose:
@@ -66,9 +67,10 @@ class DBConnector:
         self.entries.append(entry)
 
     def save_db(self):
-        self.collection.insert_many(self.entries)
+        if len(self.entries):
+            self.collection.insert_many(self.entries)
 
     def save_to_file(self):
         save_json(self.collection_name + ".json", self.entries)
-        df = pd.read_json(self.entries)
+        df = pd.read_json(StringIO(json.dumps(self.entries)))
         df.to_csv(self.collection_name + ".csv", index=False)
